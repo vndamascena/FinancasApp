@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4>Painel de controle principal</h4>
+<p>Seja bem vindo ao sistema de controle financeiro.</p>
+<hr />
+
+<form>
+    <div class="row mb-2">
+        <div class="col-md-3">
+            <label>Data de início:</label>
+            <input type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Data de fim:</label>
+            <input type="date" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <input type="submit" class="btn btn-outline-success mt-4"
+                   value="Pesquisar contas" />
+        </div>
+    </div>
+</form>
+<div class="row mb-2">
+    <div class="col-md-6">
+        <div id="graficoDonut"></div>
+    </div>
+    <div class="col-md-6">
+        <div id="graficoColunas"></div>
+    </div>
+</div>
+
+
+@section scripts {
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script>
+        // Dados para o gráfico de donut (total de contas
+        //a pagar X contas a receber)
+        var donutData = [{
+            name: 'Contas a Pagar',
+            y: 3000, // Substitua com o valor total de contas a pagar
+            color: '#FF5733'
+        }, {
+            name: 'Contas a Receber',
+            y: 5000, // Substitua com o valor total de contas a receber
+            color: '#33FF57'
+        }];
+        // Dados para o gráfico de colunas (total de contas por categoria)
+        var colunasData = [{
+            name: 'Despesas Médicas',
+            y: 1500 // Substitua com o valor total de despesas médicas
+        }, {
+            name: 'Alimentação',
+            y: 2000 // Substitua com o valor total de alimentação
+        }, {
+            name: 'Cartões de Crédito',
+            y: 1000 // Substitua com o valor total de cartões de crédito
+        }];
+        // Crie o gráfico de donut
+        Highcharts.chart('graficoDonut', {
+            chart: {
+                type: 'pie'
+            },
+            plotOptions: {
+                pie: {
+                    innerSize: '60%'
+                }
+            },
+            title: {
+                text: 'Total de Contas a Pagar X Contas a Receber'
+            },
+            series: [{
+                name: 'Valor',
+                data: donutData
+            }]
+        });
+        // Crie o gráfico de colunas
+        Highcharts.chart('graficoColunas', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Total de Contas por Categoria'
+            },
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                title: {
+                    text: 'Valor'
+                }
+            },
+            series: [{
+                name: 'Valor',
+                data: colunasData
+            }]
+        });
+    </script>
+}

@@ -1,0 +1,82 @@
+﻿@using FinancasApp.Presentation.Models.Usuarios
+@using Newtonsoft.Json
+
+@{
+    //ler e deserializar os dados do usuário autenticado
+    var usuario = JsonConvert.DeserializeObject<UsuarioViewModel>(User.Identity.Name);
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinancasApp</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    @RenderSection("styles", required: false)
+
+</head>
+<body class="bg-secondary-subtle">
+    <!-- Menu de navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">FinancasApp</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Home/Index">Dashboard principal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Contas/Cadastro">Cadastrar contas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Contas/Consulta">Consultar minhas contas</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <strong>@usuario.Nome</strong> - @usuario.Email
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/Account/Logout" onclick="return confirm('Deseja realmente sair do sistema?');">Sair do Sistema</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    @if (TempData["MensagemSucesso"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Sucesso!</strong> @TempData["MensagemSucesso"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    else if (TempData["MensagemErro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Erro!</strong> @TempData["MensagemErro"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Card centralizado -->
+    <div class="container mt-2">
+        <div class="card">
+            <div class="card-body">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>
+
+

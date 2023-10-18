@@ -1,0 +1,125 @@
+﻿@model FinancasApp.Presentation.Models.Contas.ContasConsultaViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h4>Consultar minhas contas</h4>
+<p>Utilize os campos para filtrar suas contas dentro de um período de datas.</p>
+<hr />
+
+@using (Html.BeginForm())
+{
+    <div class="row mb-2">
+        <div class="col-md-3">
+            <label>Data de início:</label>
+            @Html.TextBoxFor(model => model.DataMin,"{0:yyyy-MM-dd}", new {
+        @type = "date",
+        @class = "form-control"
+        })
+            <div class="text-danger">
+                @Html.ValidationMessageFor(model => model.DataMin)
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label>Data de fim:</label>
+            @Html.TextBoxFor(model => model.DataMax,"{0:yyyy-MM-dd}", new {
+        @type = "date",
+        @class = "form-control"
+        })
+            <div class="text-danger">
+                @Html.ValidationMessageFor(model => model.DataMax)
+            </div>
+        </div>
+        <div class="col-md-6">
+            <input type="submit" class="btn btn-outline-success mt-4" value="Pesquisar contas" />
+        </div>
+    </div>
+
+}
+
+@if (Model != null && Model.Contas != null)
+{
+    if (Model.Contas.Count > 0)
+    {
+        <div class="table-responsive">
+            <table id="tabelaContas" class="table table-sm table-hover table-striped mt-2">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                        <th>Categoria</th>
+                        <th>Nome</th>
+                        <th>Operações</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model.Contas)
+                    {
+                        <tr>
+                            <td>@item.Data.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Valor.ToString("c")</td>
+                            <td>@item.Tipo</td>
+                            <td></td>
+                            <td>@item.Nome</td>
+                            <td>
+                                <a href="/Contas/Edicao?id=@item.Id" class="btn btn-outline-primary btn-sm">
+                                    Editar
+                                </a>
+                                &nbsp;
+                                <a href="/Contas/Exclusao?id=@item.Id"
+                                   onclick="return confirm('Deseja realmente excluir a conta?');"
+                                   class="btn btn-outline-danger btn-sm">
+                                    Excluir
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6">
+                            Quantidade de contas: @Model.Contas.Count
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Nenhum registro foi encontrado para o período de datas selecionado.</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+}
+
+@section styles {
+    <!-- folha de estilos CSS do JQuery DataTable -->
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+}
+
+@section scripts {
+    <!-- biblioteca do JQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- biblioteca javascript -->
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        //faça algo quando a página abrir
+        $(document).ready(function () {
+            //aplicando o DataTable na tabela
+            $("#tabelaContas").DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.5/i18n/pt-BR.json',
+                }
+            });
+        })
+    </script>
+}
+
+
