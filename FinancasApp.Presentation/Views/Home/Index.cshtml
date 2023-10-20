@@ -7,21 +7,24 @@
 <hr />
 
 <form>
+
     <div class="row mb-2">
         <div class="col-md-3">
             <label>Data de início:</label>
-            <input type="date" class="form-control" />
+            <input type="date" id="dataMin" class="form-control" />
         </div>
         <div class="col-md-3">
             <label>Data de fim:</label>
-            <input type="date" class="form-control" />
+            <input type="date" id="dataMax" class="form-control" />
         </div>
         <div class="col-md-6">
-            <input type="submit" class="btn btn-outline-success mt-4"
-                   value="Pesquisar contas" />
+            <input type="button" id="btnPesquisa"
+                   class="btn btn-outline-success mt-4" value="Pesquisar contas" />
         </div>
     </div>
+
 </form>
+
 <div class="row mb-2">
     <div class="col-md-6">
         <div id="graficoDonut"></div>
@@ -31,70 +34,117 @@
     </div>
 </div>
 
-
 @section scripts {
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+
     <script>
-        // Dados para o gráfico de donut (total de contas
-        //a pagar X contas a receber)
-        var donutData = [{
-            name: 'Contas a Pagar',
-            y: 3000, // Substitua com o valor total de contas a pagar
-            color: '#FF5733'
-        }, {
-            name: 'Contas a Receber',
-            y: 5000, // Substitua com o valor total de contas a receber
-            color: '#33FF57'
-        }];
-        // Dados para o gráfico de colunas (total de contas por categoria)
-        var colunasData = [{
-            name: 'Despesas Médicas',
-            y: 1500 // Substitua com o valor total de despesas médicas
-        }, {
-            name: 'Alimentação',
-            y: 2000 // Substitua com o valor total de alimentação
-        }, {
-            name: 'Cartões de Crédito',
-            y: 1000 // Substitua com o valor total de cartões de crédito
-        }];
-        // Crie o gráfico de donut
-        Highcharts.chart('graficoDonut', {
-            chart: {
-                type: 'pie'
-            },
-            plotOptions: {
-                pie: {
-                    innerSize: '60%'
-                }
-            },
-            title: {
-                text: 'Total de Contas a Pagar X Contas a Receber'
-            },
-            series: [{
-                name: 'Valor',
-                data: donutData
-            }]
+
+        //evento executado no momento em que a página for aberta
+        $(document).ready(function () {
+
+            // Obter a data atual
+            var currentDate = new Date();
+
+            // Definir a data de início como o primeiro dia do mês atual
+            var firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            $("#dataMin").val(firstDayOfMonth.toISOString().split('T')[0]);
+
+            // Definir a data de fim como o último dia do mês atual
+            var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            $("#dataMax").val(lastDayOfMonth.toISOString().split('T')[0]);
+
+            //carregando a pesquisa
+            pesquisarDados();
+
+            //evento quando o botão de pesquisa for clicado
+            $("#btnPesquisa").click(function () {
+                pesquisarDados();
+            });
         });
-        // Crie o gráfico de colunas
-        Highcharts.chart('graficoColunas', {
-            chart: {
-                type: 'column'
-            },
-            title: {
-                text: 'Total de Contas por Categoria'
-            },
-            xAxis: {
-                type: 'category'
-            },
-            yAxis: {
-                title: {
-                    text: 'Valor'
+
+        //função para realizar a pesquisa de dados
+        function pesquisarDados() {
+
+            //enviando os dados para o controlador
+            $.ajax({
+                type: 'POST',
+                url: '/Home/PesquisarContas',
+                data: {
+                    dataMin: $("#dataMin").val(),
+                    dataMax: $("#dataMax").val()
+                },
+                success: function (response) {
+
+                    //gerando os dados para o gráfico de Donut
+                    var donutData = [];
+                    for (var i = 0; i < response.graficoDonut.length; i++) {
+                        donutData.push({
+                            name: response.graficoDonut[i].name,
+                            y: response.graficoDonut[i].data
+                        });
+                    }
+
+                    //gerando os dados para o gráfico de Colunas
+                    var columnsData = [];
+                    for (var i = 0; i < response.graficoColunas.length; i++) {
+                        columnsData.push({
+                            name: response.graficoColunas[i].name,
+                            y: response.graficoColunas[i].data
+                        });
+                    }
+
+                    // Crie o gráfico de donut
+                    Highcharts.chart('graficoDonut', {
+                        chart: {
+                            type: 'pie'
+                        },
+                        plotOptions: {
+                            pie: {
+                                innerSize: '60%'
+                            }
+                        },
+                        title: {
+                            text: 'Total de Contas a Pagar X Contas a Receber'
+                        },
+                        series: [{
+                            name: 'Valor',
+                            data: donutData
+                        }]
+                    });
+
+                    // Crie o gráfico de colunas
+                    Highcharts.chart('graficoColunas', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Total de Contas por Categoria'
+                        },
+                        xAxis: {
+                            type: 'category'
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Valor'
+                            }
+                        },
+                        series: [{
+                            name: 'Valor',
+                            data: columnsData
+                        }]
+                    });
+
+                },
+                error: function (e) {
+                    console.log(e);
                 }
-            },
-            series: [{
-                name: 'Valor',
-                data: colunasData
-            }]
-        });
+            });
+        }
+
     </script>
+
 }
+
+
